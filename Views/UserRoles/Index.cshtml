@@ -1,0 +1,37 @@
+﻿@model IEnumerable<RaCeDay.Models.ViewModels.UserRolesViewModel>
+@{
+    ViewData["Tittle"] = "User Roles Management";
+}
+
+<div class="container mt-4">
+
+    <h2> User Roles Management</h2>
+    <hr />
+    <table class="table table-stripped table-bordered">
+    <thead class="table-info">
+        <tr>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Roles</th>
+            <th style="width:150px;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @foreach(var user in Model)
+                  {
+                    <tr>
+                       <td>@user.Email</td>
+                       <td>@user.UserName</td>
+                       <td>
+                           @string.Join(",", user.Roles)
+                       </td>
+                       <td>
+                           <a asp-action="Manage" asp-route-userId="@user.UserId" class="btn btn-danger btn-sm"> Manage Roles</a>
+                       </td>
+
+                       </tr>
+        }
+    </tbody>
+    </table>
+
+</div>
