@@ -1,4 +1,4 @@
-namespace RaCeDay.Models
+namespace RaceDayy.Models
 {
     public class ErrorViewModel
     {

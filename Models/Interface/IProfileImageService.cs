@@ -1,79 +1,51 @@
-﻿
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-
-namespace RaCeDay.Models.Interface
+﻿namespace RaceDayy.Models.Interface
 {
-    public interface IProfilImageService
+    public interface IProfileImageService
     {
         Task<string?> SaveAsync(IFormFile file);
+
         void Delete(string? relativePath);
+
     }
-
-    public class ProfilImageService : IProfilImageService
+    public class ProfileImageService : IProfileImageService
     {
-        private static readonly string[] Allowed =
-        {
-            ".jpg", ".jpeg", ".png", ".webp"
-        };
+        private static readonly string[] Allowed = { ".jpg", ".jpeg", ".png", ".webp" };
 
-        private const long MaxBytes = 2 * 1024 * 1024;
+        private const long MaxBytes = 2 * 1024 * 1024; // 2 MB
 
         private readonly IWebHostEnvironment _env;
 
-        public ProfilImageService(IWebHostEnvironment env)
-        {
-            _env = env;
-        }
+        public ProfileImageService(IWebHostEnvironment env) => _env = env;
 
         public async Task<string?> SaveAsync(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return null;
-
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-            if (!Allowed.Contains(ext) || file.Length > MaxBytes)
+            if (!Allowed.Contains(ext) || file.Length == 0 || file.Length > MaxBytes)
                 return null;
 
-            var webRoot = _env.WebRootPath
-                ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-
-            var folder = Path.Combine(webRoot, "uploads", "profile");
-
+            var folder = Path.Combine(_env.WebRootPath, "uploads", "profiles");
             Directory.CreateDirectory(folder);
 
-            var fileName = $"{Guid.NewGuid()}{ext}";
+            var fileName = $"{Guid.NewGuid()}{ext}";   // never trust the client file name
             var fullPath = Path.Combine(folder, fileName);
 
-            await using (var fs = new FileStream(fullPath, FileMode.CreateNew))
-            {
-                await file.CopyToAsync(fs);
-            }
+            await using var stream = new FileStream(fullPath, FileMode.Create);
+            await file.CopyToAsync(stream);
 
-            return $"/uploads/profile/{fileName}";
+            return $"/uploads/profiles/{fileName}";
         }
 
         public void Delete(string? relativePath)
         {
-            if (string.IsNullOrWhiteSpace(relativePath))
-                return;
-
-            var webRoot = _env.WebRootPath
-                ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-
-            var fileName = Path.GetFileName(relativePath);
-
-            if (string.IsNullOrWhiteSpace(fileName))
-                return;
+            if (string.IsNullOrWhiteSpace(relativePath)) return;
 
             var fullPath = Path.Combine(
-                webRoot, "uploads", "profile", fileName);
+                _env.WebRootPath,
+                relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
             if (File.Exists(fullPath))
-            {
                 File.Delete(fullPath);
-            }
         }
     }
 }

@@ -10,7 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Development email service
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddTransient<IEmailSender, DevelopmentEmailSender>();
+    builder.Services.AddTransient<
+        IEmailSender,
+        DevelopmentEmailSender>();
 }
 
 // Database connection
@@ -44,7 +46,7 @@ builder.Services.AddScoped<
 
 var app = builder.Build();
 
-// Database, roles and Admin setup
+// Database migrations, roles and Admin setup
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -53,8 +55,9 @@ using (var scope = app.Services.CreateScope())
         .GetRequiredService<ApplicationDbContext>();
 
     // Apply pending migrations
-    context.Database.Migrate();
+    await context.Database.MigrateAsync();
 
+    // Create required roles
     var roleManager = services
         .GetRequiredService<RoleManager<IdentityRole>>();
 
@@ -83,18 +86,57 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
+    // Get ApplicationUser manager
     var userManager = services
         .GetRequiredService<UserManager<ApplicationUser>>();
 
+    // Admin credentials from configuration
     string? email = builder.Configuration["SeedAdmin:Email"];
     string? password = builder.Configuration["SeedAdmin:Password"];
 
-    // Create Admin only if the account does not exist
     if (!string.IsNullOrWhiteSpace(email) &&
         !string.IsNullOrWhiteSpace(password))
     {
-        var admin = await userManager.FindByEmailAsync(email);
+        // Look for Admin by email OR username
+        var admin = await userManager.FindByEmailAsync(email)
+            ?? await userManager.FindByNameAsync(email);
 
+
+        if (admin != null &&
+            app.Environment.IsDevelopment() &&
+            await userManager.IsInRoleAsync(admin, "Admin") &&
+            string.IsNullOrWhiteSpace(admin.Email))
+        {
+            var result = await userManager.SetEmailAsync(
+                admin,
+                email);
+
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Admin email update failed: " +
+                    string.Join("; ",
+                        result.Errors.Select(e => e.Description)));
+            }
+
+            // Existing trusted local Admin account only.
+            var token = await userManager
+                .GenerateEmailConfirmationTokenAsync(admin);
+
+            var confirmation = await userManager
+                .ConfirmEmailAsync(admin, token);
+
+            if (!confirmation.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Admin email confirmation failed: " +
+                    string.Join("; ",
+                        confirmation.Errors.Select(e => e.Description)));
+            }
+        }
+
+
+        // Create Admin only if it does not already exist
         if (admin == null)
         {
             admin = new ApplicationUser
@@ -117,62 +159,27 @@ using (var scope = app.Services.CreateScope())
                             e => e.Description)));
             }
 
-            var addRoleResult = await userManager.AddToRoleAsync(
+            // Assign Admin role to newly created account
+            var roleResult = await userManager.AddToRoleAsync(
                 admin,
                 "Admin");
 
-            if (!addRoleResult.Succeeded)
+            if (!roleResult.Succeeded)
             {
                 throw new InvalidOperationException(
                     "Admin role assignment failed: " +
                     string.Join("; ",
-                        addRoleResult.Errors.Select(
+                        roleResult.Errors.Select(
                             e => e.Description)));
             }
         }
-    }
-
-    // TEMPORARY: Confirm trusted local test accounts only.
-    // Remove this block after confirming both accounts.
-    // This bypasses actual email ownership verification.
-    if (app.Environment.IsDevelopment())
-    {
-        var testEmails = new[]
+        else
         {
-            "amahlesithole2003@gmail.com",
-            "amahleyeyeza2003@gmail.com"
-        };
-
-        foreach (var testEmail in testEmails)
-        {
-            var participant = await userManager
-                .FindByEmailAsync(testEmail);
-
-            if (participant == null ||
-                participant.EmailConfirmed ||
-                !await userManager.IsInRoleAsync(
-                    participant, "Participant"))
-            {
-                continue;
-            }
-
-            var token = await userManager
-                .GenerateEmailConfirmationTokenAsync(participant);
-
-            var confirmResult = await userManager
-                .ConfirmEmailAsync(participant, token);
-
-            if (!confirmResult.Succeeded)
-            {
-                throw new InvalidOperationException(
-                    "Participant confirmation failed: " +
-                    string.Join("; ",
-                        confirmResult.Errors.Select(
-                            e => e.Description)));
-            }
+            // Existing user found.
+            // Do not overwrite their email, password or roles.
+            // This prevents duplicate account creation.
         }
     }
-    // END TEMPORARY PARTICIPANT CONFIRMATION
 }
 
 // Configure the HTTP request pipeline
@@ -191,28 +198,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Authentication must run before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Default MVC route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Identity Razor Pages
 app.MapRazorPages();
 
 app.Run();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
