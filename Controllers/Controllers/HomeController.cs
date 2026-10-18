@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using RaCeDay.Models;
+using RaceDayy.Models;
+using System.Diagnostics;
 
-namespace RaCeDay.Controllers
+namespace RaceDayy.Controllers
 {
     public class HomeController : Controller
     {
@@ -10,14 +10,11 @@ namespace RaCeDay.Controllers
         {
             return View();
         }
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
-        { 
-            _logger = logger;
-
+        public IActionResult OrganiserDashboard()
+        {
+            return View();
         }
-
         public IActionResult Index()
         {
             return View();

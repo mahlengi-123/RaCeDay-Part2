@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using RaCeDay.Data;
-using RaCeDay.Models.Interface;
+using RaceDayy.Models.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,10 +41,9 @@ builder.Services.AddRazorPages();
 
 // Profile image service
 builder.Services.AddScoped<
-    IProfilImageService,
-    ProfilImageService>();
-
-var app = builder.Build();
+    IProfileImageService,
+    ProfileImageService>();
+WebApplication app = builder.Build();
 
 // Database migrations, roles and Admin setup
 using (var scope = app.Services.CreateScope())

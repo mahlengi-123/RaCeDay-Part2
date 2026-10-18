@@ -1,9 +1,12 @@
-﻿namespace RaceDayy.Models.ViewModels
+﻿
+namespace RaCeDay.Models.ViewModels
 {
     public class ManageUserRolesViewModel
     {
         public string RoleId { get; set; } = string.Empty;
+
         public string RoleName { get; set; } = string.Empty;
-        public bool isSelected { get; set; } 
+
+        public bool isSelected { get; set; }
     }
 }
