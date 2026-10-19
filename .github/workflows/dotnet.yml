@@ -1,28 +1,47 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: .NET
+name: RaCeDay Build and Tests
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Find solution
+        id: solution
+        shell: pwsh
+        run: |
+          $solutions = @(Get-ChildItem -Recurse -File |
+            Where-Object { $_.Extension -in @('.sln', '.slnx') })
+
+          if ($solutions.Count -ne 1) {
+            Write-Error "Expected one solution, found $($solutions.Count). Check repository structure."
+            exit 1
+          }
+
+          $solution = $solutions[0].FullName
+          "path=$solution" >> $env:GITHUB_OUTPUT
+          Write-Host "Using solution: $solution"
+
+      - name: Restore dependencies
+        run: dotnet restore "${{ steps.solution.outputs.path }}"
+
+      - name: Build
+        run: dotnet build "${{ steps.solution.outputs.path }}" --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test "${{ steps.solution.outputs.path }}" --configuration Release --no-build --verbosity normal
