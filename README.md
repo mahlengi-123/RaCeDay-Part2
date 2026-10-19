@@ -70,6 +70,10 @@ The development database is **`RaCeDay_Complete_Dev`**. Entity Framework Core mi
 [RaCeDay Part 2 on GitHub](https://github.com/mahlengi-123/RaCeDay-Part2)
 The repository  includes the source code, migrations, README, relevant tests and GitHub Actions workflow where required. Commit meaningful changes throughout development.
 
+## CI_CD_Success.png
+<img width="933" height="401" alt="image" src="https://github.com/user-attachments/assets/aa95e57f-ef04-4eab-9a2a-b052d9c830c6" />
+
+
 ## Demonstration Video
 **Part 2 YouTube walkthrough:** _Add your video link here before submission._
 
