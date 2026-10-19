@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using RaCeDay.Data
+
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
@@ -8,23 +9,28 @@
     {
         var user = await UserManager.GetUserAsync(User);
 
-        <li class="nav-item">
+        var profileImage = string.IsNullOrWhiteSpace(user?.ProfileimagePath)
+        ? "/images/default-profile.png"
+        : user.ProfileimagePath;
+
+        var displayName = !string.IsNullOrWhiteSpace(user?.FirstName)
+        ? user.FirstName
+        : User.Identity?.Name ?? "User";
+
+        <li class="nav-item d-flex align-items-center">
             <a class="nav-link text-dark d-flex align-items-center"
                asp-area="Identity"
                asp-page="/Account/Manage/Index"
-               title="Manage">
+               title="Manage account">
 
-                <img src="~/images/default-profile.png"
-                     asp-append-version="true"
+                <img src="@profileImage"
                      class="rounded-circle me-2"
                      width="32"
                      height="32"
                      style="object-fit: cover;"
                      alt="Profile picture" />
 
-                <span>
-                    Hello @(user?.FirstName ?? User.Identity?.Name)!
-                </span>
+                <span>Hello @displayName!</span>
             </a>
         </li>
 
@@ -36,7 +42,7 @@
                   method="post">
 
                 <button type="submit"
-                        class="nav-link btn btn-link text-dark">
+                        class="nav-link btn btn-link text-dark border-0">
                     Logout
                 </button>
             </form>

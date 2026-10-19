@@ -1,0 +1,98 @@
+@model IEnumerable<RaceDayy.Models.Enrolment>
+
+@{
+    ViewData["Title"] = "My enrolments";
+}
+
+<div class="container mt-4">
+
+    <h1 class="h3 mb-3">My enrolments</h1>
+
+    @if (Model == null || !Model.Any())
+    {
+        <p class="text-muted">
+            You haven't entered any events yet.
+            <a asp-area=""
+               asp-controller="Events"
+               asp-action="Index">
+                Browse events
+            </a>.
+        </p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Result</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var enrolment in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Events"
+                                   asp-action="Details"
+                                   asp-route-id="@enrolment.EventId">
+                                    @enrolment.Event?.Name
+                                </a>
+                            </td>
+
+                            <td>
+                                @enrolment.Event?.Date.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+
+                            <td>
+                                @enrolment.Category?.Name
+                            </td>
+
+                            <td>
+                                @if (enrolment.Result != null)
+                                {
+                                    <span>
+                                        @enrolment.Result.FinishTime.ToString(@"hh\:mm\:ss")
+                                        (Position @enrolment.Result.Position)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Not available
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (enrolment.Result == null &&
+                                                        enrolment.Event != null &&
+                                                        enrolment.Event.Date > DateTime.Now)
+                                {
+                                    <form asp-controller="Enrolments"
+                                          asp-action="Withdraw"
+                                          asp-route-id="@enrolment.Id"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">
+                                            Withdraw
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>
