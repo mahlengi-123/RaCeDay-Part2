@@ -1,0 +1,9 @@
+@model RaceDayy.Models.Category
+@{ ViewData["Title"] = "Delete category"; }
+<h1 class="h3">Delete category</h1>
+<p>Delete @Model.Name?</p>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+<input type="hidden" asp-for="Id" />
+<button type="submit" class="btn btn-danger">Delete category</button>
+<a asp-action="Index" asp-route-eventId="@Model.EventId" class="btn btn-outline-secondary">Cancel</a>
+</form>

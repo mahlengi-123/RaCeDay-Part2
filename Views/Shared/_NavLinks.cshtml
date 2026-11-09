@@ -1,0 +1,32 @@
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark"
+           asp-area=""
+           asp-controller="Events"
+           asp-action="Index">
+            Events
+        </a>
+    </li>
+
+    @if (User.IsInRole("Participant"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-area=""
+               asp-controller="Enrolments"
+               asp-action="My">
+                My Enrolments
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-area=""
+               asp-controller="Results"
+               asp-action="My">
+                My Results
+            </a>
+        </li>
+    }
+}

@@ -1,0 +1,81 @@
+@model RaceDayy.Models.Event
+
+@{
+    ViewData["Title"] = "Edit event";
+}
+
+<h1 class="h3">Edit event</h1>
+<hr />
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post"
+              enctype="multipart/form-data">
+
+            <div asp-validation-summary="All"
+                 class="text-danger"></div>
+
+            <partial name="_EventForm" model="Model" />
+
+            @if (!string.IsNullOrWhiteSpace(Model.BannerImageURL))
+            {
+                <div class="mb-3">
+                    <p class="form-label">Current banner</p>
+                    <img src="@Model.BannerImageURL"
+                         alt="Current banner for @Model.Name"
+                         class="img-fluid rounded"
+                         style="max-height: 240px;" />
+                </div>
+            }
+
+            <div class="mb-3">
+                <label for="bannerFile" class="form-label">
+                    Banner image
+                </label>
+
+                <input type="file"
+                       id="bannerFile"
+                       name="bannerFile"
+                       accept="image/jpeg,image/png,image/webp"
+                       class="form-control"
+                       aria-describedby="bannerHelp" />
+
+                <div id="bannerHelp" class="form-text">
+                    Choose a JPG, PNG or WebP image, up to 5 MB.
+                    Leave empty to keep the current banner.
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.BannerImageURL))
+            {
+                <div class="form-check mb-3">
+                    <input type="checkbox"
+                           id="removeBanner"
+                           name="removeBanner"
+                           value="true"
+                           class="form-check-input" />
+
+                    <label for="removeBanner" class="form-check-label">
+                        Remove current banner
+                    </label>
+                </div>
+            }
+
+            <button type="submit" class="btn btn-primary">
+                Save
+            </button>
+
+            <a asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

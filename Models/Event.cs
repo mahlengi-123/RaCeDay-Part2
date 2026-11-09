@@ -44,7 +44,15 @@ public class Event
     public decimal DistanceKm { get; set; }
 
     [Display(Name = "Event type")]
+
     public EventType EventType { get; set; }
+
+    [StringLength(500)]
+    [Display(Name = "Banner image")]
+    public string? BannerImageURL { get; set; }
+
+    [StringLength(200)]
+    public string? BannerBlobName{ get; set; }
 
     // The organiser who owns the event
     [Required]

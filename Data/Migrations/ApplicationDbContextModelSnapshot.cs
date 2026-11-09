@@ -309,6 +309,14 @@ namespace RaCeDay.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BannerBlobName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("BannerImageURL")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -440,13 +448,13 @@ namespace RaCeDay.Data.Migrations
                     b.HasOne("RaceDayy.Models.Category", "Category")
                         .WithMany("Enrolments")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("RaceDayy.Models.Event", "Event")
                         .WithMany("Enrolments")
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("RaCeDay.Data.ApplicationUser", "Participant")
