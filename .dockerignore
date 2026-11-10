@@ -3,7 +3,10 @@
 .git
 .vs
 Tests
+ApiTests
 **/*.user
 **/*.suo
 .env
 .env.*
+runtime.env
+docs

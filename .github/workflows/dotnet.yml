@@ -3,9 +3,9 @@ name: RaCeDay Build and Tests
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "part3-mvc" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "part3-mvc" ]
   workflow_dispatch:
 
 jobs:
@@ -45,3 +45,44 @@ jobs:
 
       - name: Test
         run: dotnet test "${{ steps.solution.outputs.path }}" --configuration Release --no-build --verbosity normal
+
+  docker:
+    name: Docker build and startup
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create disposable container configuration
+        shell: bash
+        run: |
+          echo "BANNER_API_KEY=$(openssl rand -hex 32)" > .env
+          echo "SQL_SA_PASSWORD=Ci!$(openssl rand -hex 16)Aa9" >> .env
+          echo "AZURE_BLOB_CONNECTION_STRING=UseDevelopmentStorage=true" >> .env
+          echo "AZURE_BLOB_CONTAINER_NAME=event-banners" >> .env
+      - name: Validate container configuration
+        run: docker compose config --quiet
+      - name: Build both application images
+        run: docker compose --parallel 1 build
+      - name: Start MVC API and SQL Server
+        run: docker compose up -d --wait --wait-timeout 240
+      - name: Verify running containers
+        shell: bash
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080/Identity/Account/Login -o /tmp/raceday-login.html; then break; fi
+            sleep 2
+          done
+          grep -q 'Input.Email' /tmp/raceday-login.html
+          curl -fsS http://127.0.0.1:5082/health
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:5082/api/banners)" = "401"
+          key=$(sed -n 's/^BANNER_API_KEY=//p' .env)
+          printf 'invalid image' > /tmp/invalid.png
+          test "$(curl -s -o /tmp/invalid-response.json -w '%{http_code}' -H "X-Banner-Api-Key: $key" -F "file=@/tmp/invalid.png;type=image/png" http://127.0.0.1:5082/api/banners)" = "400"
+          docker compose ps
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail 100
+      - name: Stop disposable containers
+        if: always()
+        run: docker compose down -v
