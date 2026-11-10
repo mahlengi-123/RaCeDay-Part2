@@ -10,6 +10,7 @@ WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
 COPY --from=build /app/publish .
-RUN mkdir -p /app/wwwroot/uploads/profiles && chown -R "$APP_UID" /app/wwwroot/uploads
+RUN mkdir -p /app/wwwroot/uploads/profiles /home/app/.aspnet/DataProtection-Keys \
+    && chown -R "$APP_UID" /app/wwwroot/uploads /home/app/.aspnet
 USER $APP_UID
 ENTRYPOINT ["dotnet", "RaCeDay Part 2.dll"]
