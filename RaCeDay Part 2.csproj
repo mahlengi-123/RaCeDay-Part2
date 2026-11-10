@@ -5,16 +5,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-RaCeDay-c0fbb9d9-1562-492e-98f6-e50f4489c05b</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.25.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.30" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.30" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.30" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.30" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.30" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
   </ItemGroup>
 
-</Project>
+<ItemGroup><Compile Remove="RaCeDay\**\*" /><Content Remove="RaCeDay\**\*" /><EmbeddedResource Remove="RaCeDay\**\*" /><None Remove="RaCeDay\**\*" /></ItemGroup><ItemGroup><Compile Remove="Part3Mvc\**\*" /><Content Remove="Part3Mvc\**\*" /><EmbeddedResource Remove="Part3Mvc\**\*" /><None Remove="Part3Mvc\**\*" /></ItemGroup></Project>

@@ -207,6 +207,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Identity Razor Pages
+app.MapControllers();
 app.MapRazorPages();
 
 app.Run();
