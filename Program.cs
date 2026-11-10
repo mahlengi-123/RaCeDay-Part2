@@ -47,8 +47,12 @@ builder.Services.AddSession(options =>
 });
 
 // Event banner storage
-builder.Services.AddScoped<RaCeDay_Part_2.Services.IBlobStorageService,
-    RaCeDay_Part_2.Services.BlobStorageService>();
+builder.Services.AddHttpClient<RaCeDay_Part_2.Services.IBlobStorageService,
+    RaCeDay_Part_2.Services.BannerApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["BannerApi:BaseUrl"] ?? "http://127.0.0.1:5081/");
+    client.Timeout = TimeSpan.FromSeconds(60);
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 
 // Profile image service
 builder.Services.AddScoped<

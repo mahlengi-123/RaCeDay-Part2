@@ -151,6 +151,11 @@ public class EventsController : Controller
 
             await _db.SaveChangesAsync();
         }
+        catch (BannerApiException ex)
+        {
+            ModelState.AddModelError(nameof(bannerFile), ex.Message);
+            return View(ev);
+        }
         catch
         {
             // Remove newly uploaded image if
@@ -254,6 +259,11 @@ public class EventsController : Controller
 
             // Save updated event information.
             await _db.SaveChangesAsync();
+        }
+        catch (BannerApiException ex)
+        {
+            ModelState.AddModelError(nameof(bannerFile), ex.Message);
+            return View(ev);
         }
         catch
         {
