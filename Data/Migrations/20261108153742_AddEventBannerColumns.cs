@@ -84,4 +84,3 @@ namespace RaCeDay.Data.Migrations
         }
     }
 }
-.
