@@ -35,7 +35,7 @@ public class CategoriesController : Controller
             return NotFound();
 
         ViewBag.Event = ev;
-        ViewBag.IsOwner =
+        ViewBag.IsOwner =.
             User.IsInRole("Admin") ||
             ev.OrganiserId == _users.GetUserId(User);
 
