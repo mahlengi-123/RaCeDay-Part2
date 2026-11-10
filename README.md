@@ -155,3 +155,223 @@ on the laptop during the repair.
 - Record and link the Part 3 demonstration video and add genuine screenshots.
 - Do not claim a particular commit count or Docker result without the corresponding evidence.
 
+
+
+
+
+# RaceDay — Part 3
+## PROG6212: Event Management System
+
+## Project Overview
+
+RaceDay is an ASP.NET Core MVC application for running, walking and cycling events.
+
+Administrators manage user roles. Organisers manage events, categories, enrolments and results. Participants browse events, enrol and view their results.
+
+## Technologies
+
+- C# and .NET 8
+- ASP.NET Core MVC and Razor Views
+- ASP.NET Core Identity
+- Entity Framework Core and SQL Server
+- Azure Blob Storage
+- Bootstrap, CSS and JavaScript
+- Docker
+- xUnit and GitHub Actions
+
+## Authentication and Role-Based Navigation
+
+The application supports registration, login and logout.
+
+The three roles are Admin, Organiser and Participant. Authorisation restricts protected pages and actions according to the signed-in user's role.
+
+Session stores the user's ID and role after login and is cleared on logout. Identity authentication cookies control authenticated access.
+
+Email confirmation remains enabled.
+
+## Organiser Interface
+
+Organisers can:
+
+- Access their dashboard.
+- Create, view, edit and delete their own events.
+- Upload and replace event banners.
+- Create, edit and delete event categories.
+- View participant enrolments for their events.
+- Capture finishing times and positions after an event.
+
+Events and categories with enrolments cannot be deleted.
+
+## Participant Interface
+
+Participants can:
+
+- Browse events and view event details.
+- Enter upcoming events by selecting a category.
+- View their own enrolments.
+- Withdraw before an event when no result exists.
+- View finishing times and positions.
+- Access their dashboard and profile.
+
+## MVC Structure
+
+### Models
+
+Event, Category, Enrolment, Result and ApplicationUser represent the application's data.
+
+### Views
+
+Razor views are organised under:
+
+- Views/Home
+- Views/Dashboard
+- Views/Events
+- Views/Categories
+- Views/Enrolments
+- Views/Results
+- Views/UserRoles
+- Views/Shared
+
+### Controllers
+
+Controllers process requests, validate input, check permissions and communicate with the database and services.
+
+Identity account pages handle registration, login, logout and profile management.
+
+## Azure Blob Storage
+
+Event banners are stored in the event-banners container.
+
+Supported formats are JPG, JPEG, PNG, GIF and WebP, with a maximum size of 2 MB.
+
+The application validates image uploads and saves the blob name and image URL in SQL Server. Event details display the saved banner. Editing an event allows the banner to be replaced.
+
+The current implementation uploads directly through the MVC storage service.
+
+Outstanding highest-band requirement:
+The rubric requires the file to pass from MVC to an API, with the API uploading it to Azure and returning the URL. This separate upload flow is not yet implemented.
+
+## Local Setup
+
+1. Install the .NET 8 SDK and Visual Studio's ASP.NET development workload.
+2. Configure a SQL Server connection.
+3. Configure Azure Blob Storage through User Secrets.
+4. Restore and build the solution.
+5. Start the application.
+
+Required configuration keys:
+
+- ConnectionStrings:DefaultConnection
+- AzureBlob:ConnectionString
+- AzureBlob:ContainerName
+
+The existing AzureStorage:ConnectionString key is also supported.
+
+Do not commit credentials or runtime.env.
+
+Commands:
+
+    dotnet restore "RaCeDay Part2.sln"
+    dotnet build "RaCeDay Part2.sln"
+    dotnet run --project "RaCeDay Part 2.csproj" --launch-profile https
+
+Local address:
+
+https://localhost:7240
+
+The application applies pending Entity Framework migrations during startup.
+
+## Testing
+
+The Tests folder contains automated tests referencing the application.
+
+Recorded verification on 10 November 2026:
+
+- 46 automated tests passed.
+- 48 live checks passed, covering authentication, dashboards, event management, categories, enrolments, results, logout and Azure uploads.
+- Temporary test accounts, records and uploaded images were removed.
+
+Run the tests:
+
+    dotnet test "RaCeDay Part2.sln"
+
+These results do not replace a complete visual review or Docker demonstration.
+
+## GitHub and CI/CD
+
+Repository:
+
+ https://github.com/mahlengi-123/RaCeDay-Part2
+
+Workflow:
+
+.github/workflows/dotnet.yml
+
+The workflow restores dependencies, builds the solution including the MVC project, and runs automated tests.
+
+Verified successful workflow:
+
+https://github.com/mahlengi-123/RaCeDay-Part2/actions/runs/42898700669
+
+Before submission:
+
+- Place Part 3 in a clearly named branch or subfolder.
+- Confirm at least 20 meaningful commits cover the assessed development.
+- Check that the final submitted revision passes CI.
+
+The previously checked repository contained 46 total commits. This alone does not establish that 20 commits specifically cover Part 3.
+
+## Docker
+
+The repository includes a multi-stage .NET 8 Dockerfile.
+
+Build:
+
+    docker build -t raceday .
+
+Run:
+
+    docker run --rm -p 8080:8080 --env-file runtime.env raceday
+
+The runtime.env file must contain configuration for a SQL Server instance reachable from the container and Azure Blob Storage.
+
+Windows LocalDB cannot run inside the Linux container.
+
+Docker execution has not yet been verified. A successful container build and running application must be demonstrated before claiming this rubric requirement is complete.
+
+## User Interface
+
+The application uses shared layouts and Bootstrap components.
+
+The final UI review must check:
+
+- Consistent fonts, colours, spacing and buttons.
+- Role-appropriate navigation.
+- Clear validation and error messages.
+- Responsive layouts.
+- Readable event banners and status indicators.
+- Keyboard access and visible focus.
+
+## Demonstration Video link
+
+
+## Screenshot of Event Baner
+<img width="635" height="260" alt="BobBanner Image Azure Storage" src="https://github.com/user-attachments/assets/fab88013-b08f-4c31-98f2-d2749d97084d" />
+
+
+
+
+
+## Submission Checklist
+
+- [ ] Clearly named Part 3 branch or subfolder.
+- [ ] At least 20 meaningful commits confirmed.
+- [ ] Final GitHub Actions run passes.
+- [ ] Source code and Dockerfile included.
+- [ ] Docker build and run demonstrated.
+- [ ] MVC-to-API upload requirement completed.
+- [ ] Final UI consistency review completed.
+- [ ] Genuine application and CI screenshots included.
+- [ ] Unlisted YouTube link added to this README.
+- [ ] Correct GitHub submission link submitted on ARC.
+
