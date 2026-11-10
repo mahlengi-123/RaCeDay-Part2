@@ -24,7 +24,7 @@ public class CategoriesController : Controller
     }
     
     // Display categories for an event
-    [HttpGet].
+    [HttpGet]
     public async Task<IActionResult> Index(int eventId)
     {
         var ev = await _db.Events
