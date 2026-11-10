@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Local container credentials and runtime settings
+.env
+.env.*
+!.env.example
+runtime.env
