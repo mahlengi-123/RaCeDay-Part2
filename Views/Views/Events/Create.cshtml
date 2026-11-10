@@ -1,15 +1,104 @@
 @model RaceDayy.Models.Event
-@{ ViewData["Title"] = "Create event"; }
 
-<h1 class="h3">Create event</h1>
-<hr />
-<div class="row"><div class="col-lg-8">
-    <form asp-action="Create">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <partial name="_EventForm" model="Model" />
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-    </form>
-</div></div>
+@{
+    ViewData["Title"] = "Create Event";
+}
 
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h1 class="h3 fw-bold">Create Event</h1>
+        <p class="text-muted">
+            Create a new RaceDay event and upload
+            an optional event banner.
+        </p>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            <form asp-controller="Events"
+                  asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- Existing event fields -->
+                <partial name="_EventForm"
+                         model="Model" />
+
+                <!-- Azure Blob banner upload -->
+                <div class="card mb-4">
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            Event Banner
+                        </h5>
+
+                        <p class="text-muted small">
+                            Upload an image to represent
+                            your event.
+                        </p>
+
+                        <div class="mb-3">
+
+                            <label for="bannerFile"
+                                   class="form-label">
+                                Choose Banner Image
+                            </label>
+
+                            <input type="file"
+                                   id="bannerFile"
+                                   name="bannerFile"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.gif,.webp" />
+
+                            <div class="form-text">
+                                Supported formats:
+                                JPG, PNG, GIF and WebP.
+                                Maximum size: 2 MB.
+                            </div>
+
+                            @Html.ValidationMessage(
+                            "bannerFile",
+                                                        "",
+                                                        new { @class = "text-danger" }
+                                                        )
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Form buttons -->
+                <div class="d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Create Event
+                    </button>
+
+                    <a asp-controller="Events"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
