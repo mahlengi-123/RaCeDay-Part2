@@ -18,7 +18,7 @@ public class CategoriesController : Controller
     public CategoriesController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users)
-    {.
+    {
         _db = db;
         _users = users;
     }
