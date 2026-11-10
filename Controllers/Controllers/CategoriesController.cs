@@ -22,7 +22,7 @@ public class CategoriesController : Controller
         _db = db;
         _users = users;
     }
-    .
+    
     // Display categories for an event
     [HttpGet]
     public async Task<IActionResult> Index(int eventId)
