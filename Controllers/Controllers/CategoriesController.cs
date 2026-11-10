@@ -21,7 +21,7 @@ public class CategoriesController : Controller
     {
         _db = db;
         _users = users;
-    }.
+    }
     
     // Display categories for an event
     [HttpGet]
