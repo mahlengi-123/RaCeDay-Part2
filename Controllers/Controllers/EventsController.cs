@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using RaCeDay.Data;
 using RaceDayy.Models;
 
@@ -32,6 +34,8 @@ public class EventsController : Controller
         _logger = logger;
     }
 
+    // GET: Events
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         ViewBag.UserId = _users.GetUserId(User);
@@ -45,6 +49,8 @@ public class EventsController : Controller
         return View(events);
     }
 
+    // GET: Events/Details/5
+    [HttpGet]
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -62,6 +68,7 @@ public class EventsController : Controller
         var userId = _users.GetUserId(User);
 
         ViewBag.IsOwner = ev.OrganiserId == userId;
+
         ViewBag.IsEnrolled = await _db.Enrolments
             .AnyAsync(en =>
                 en.EventId == ev.Id &&
@@ -70,6 +77,8 @@ public class EventsController : Controller
         return View(ev);
     }
 
+    // GET: Events/Create
+    [HttpGet]
     [Authorize(Roles = "Admin,Organiser")]
     public IActionResult Create()
     {
@@ -79,12 +88,15 @@ public class EventsController : Controller
         });
     }
 
+    // POST: Events/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(6 * 1024 * 1024)]
     [Authorize(Roles = "Admin,Organiser")]
     public async Task<IActionResult> Create(
         [Bind("Name,Description,Date,Location,DistanceKm,EventType")]
-        Event ev)
+        Event ev,
+        IFormFile? bannerFile)
     {
         var userId = _users.GetUserId(User);
 
@@ -92,13 +104,55 @@ public class EventsController : Controller
             return Challenge();
 
         ev.OrganiserId = userId;
+
+        // This value is supplied by the server, not the form.
         ModelState.Remove(nameof(Event.OrganiserId));
+
+        if (bannerFile != null)
+        {
+            var error = ValidateBanner(bannerFile);
+
+            if (error != null)
+                ModelState.AddModelError(nameof(bannerFile), error);
+        }
 
         if (!ModelState.IsValid)
             return View(ev);
 
-        _db.Events.Add(ev);
-        await _db.SaveChangesAsync();
+        BlobUploadResult? uploaded = null;
+
+        try
+        {
+            if (bannerFile != null)
+            {
+                uploaded = await UploadBannerAsync(bannerFile);
+
+                ev.BannerBlobName = uploaded.BlobName;
+                ev.BannerImageURL = uploaded.Url;
+            }
+
+            _db.Events.Add(ev);
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            if (uploaded != null)
+                await TryDeleteBannerAsync(uploaded.BlobName);
+
+            _db.Entry(ev).State = EntityState.Detached;
+
+            ev.BannerBlobName = null;
+            ev.BannerImageURL = null;
+
+            _logger.LogError(ex, "Failed to create event.");
+
+            ModelState.AddModelError(
+                "",
+                "The event could not be saved. Please check the storage " +
+                "configuration and select your image again.");
+
+            return View(ev);
+        }
 
         TempData["Success"] =
             "Event created. Now add the categories for it.";
@@ -109,6 +163,7 @@ public class EventsController : Controller
             new { eventId = ev.Id });
     }
 
+    // GET: Events/Edit/5
     [HttpGet]
     [Authorize(Roles = "Admin,Organiser")]
     public async Task<IActionResult> Edit(int? id)
@@ -118,9 +173,13 @@ public class EventsController : Controller
 
         var ev = await FindOwnedEventAsync(id.Value);
 
-        return ev == null ? NotFound() : View(ev);
+        if (ev == null)
+            return NotFound();
+
+        return View(ev);
     }
 
+    // POST: Events/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(6 * 1024 * 1024)]
@@ -135,16 +194,15 @@ public class EventsController : Controller
         if (ev == null)
             return NotFound();
 
-        bool hasBanner = bannerFile != null;
-
-        if (hasBanner)
+        if (bannerFile != null)
         {
-            var error = ValidateBanner(bannerFile!);
+            var error = ValidateBanner(bannerFile);
 
             if (error != null)
                 ModelState.AddModelError(nameof(bannerFile), error);
         }
 
+        // Only these fields can be changed through the form.
         var updated = await TryUpdateModelAsync(
             ev,
             "",
@@ -165,9 +223,10 @@ public class EventsController : Controller
 
         try
         {
-            if (hasBanner)
+            // A new upload takes priority over the remove checkbox.
+            if (bannerFile != null)
             {
-                uploaded = await UploadBannerAsync(bannerFile!);
+                uploaded = await UploadBannerAsync(bannerFile);
 
                 ev.BannerBlobName = uploaded.BlobName;
                 ev.BannerImageURL = uploaded.Url;
@@ -182,23 +241,26 @@ public class EventsController : Controller
         }
         catch (Exception ex)
         {
-            // Remove the new upload if saving the event failed.
             if (uploaded != null)
                 await TryDeleteBannerAsync(uploaded.BlobName);
 
             ev.BannerBlobName = oldBlobName;
             ev.BannerImageURL = oldImageUrl;
 
-            _logger.LogError(ex, "Failed to update event {EventId}.", id);
+            _logger.LogError(
+                ex,
+                "Failed to update event {EventId}.",
+                id);
 
             ModelState.AddModelError(
                 "",
-                "The event could not be saved. Please try again.");
+                "The event could not be saved. Please try again. " +
+                "If you selected an image, select it again.");
 
             return View(ev);
         }
 
-        // Delete the old image only after the database was saved.
+        // Remove the old blob only after the event was saved.
         if ((uploaded != null || removeBanner) &&
             !string.IsNullOrWhiteSpace(oldBlobName))
         {
@@ -210,6 +272,7 @@ public class EventsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    // GET: Events/Delete/5
     [HttpGet]
     [Authorize(Roles = "Admin,Organiser")]
     public async Task<IActionResult> Delete(int? id)
@@ -219,9 +282,13 @@ public class EventsController : Controller
 
         var ev = await FindOwnedEventAsync(id.Value);
 
-        return ev == null ? NotFound() : View(ev);
+        if (ev == null)
+            return NotFound();
+
+        return View(ev);
     }
 
+    // POST: Events/Delete/5
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
@@ -233,7 +300,7 @@ public class EventsController : Controller
         if (ev == null)
             return NotFound();
 
-        if (await _db.Enrolments.AnyAsync(e => e.EventId == id))
+        if (await _db.Enrolments.AnyAsync(en => en.EventId == id))
         {
             TempData["Error"] =
                 "This event has enrolments and cannot be deleted.";
@@ -243,8 +310,23 @@ public class EventsController : Controller
 
         var oldBlobName = ev.BannerBlobName;
 
-        _db.Events.Remove(ev);
-        await _db.SaveChangesAsync();
+        try
+        {
+            _db.Events.Remove(ev);
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to delete event {EventId}.",
+                id);
+
+            TempData["Error"] =
+                "The event could not be deleted. Please try again.";
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
 
         if (!string.IsNullOrWhiteSpace(oldBlobName))
             await TryDeleteBannerAsync(oldBlobName);
@@ -254,6 +336,7 @@ public class EventsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // Restrict changes to events belonging to the signed-in user.
     private Task<Event?> FindOwnedEventAsync(int id)
     {
         var userId = _users.GetUserId(User);
@@ -274,7 +357,10 @@ public class EventsController : Controller
         var extension = Path.GetExtension(file.FileName)
             .ToLowerInvariant();
 
-        bool allowed = (extension, file.ContentType.ToLowerInvariant()) switch
+        var contentType = (file.ContentType ?? "")
+            .ToLowerInvariant();
+
+        bool allowed = (extension, contentType) switch
         {
             (".jpg", "image/jpeg") => true,
             (".jpeg", "image/jpeg") => true,
@@ -291,26 +377,44 @@ public class EventsController : Controller
     private BlobContainerClient GetBannerContainer()
     {
         var connectionString =
-            _configuration["AzureBlob:ConnectionString"];
+            _configuration["AzureStorage:ConnectionString"];
+
+        var containerName =
+            _configuration["AzureStorage:ContainerName"];
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException(
-                "AzureBlob:ConnectionString is not configured.");
+                "AzureStorage:ConnectionString is not configured.");
+        }
+
+        if (string.IsNullOrWhiteSpace(containerName))
+        {
+            throw new InvalidOperationException(
+                "AzureStorage:ContainerName is not configured.");
         }
 
         return new BlobServiceClient(connectionString)
-            .GetBlobContainerClient("raceday-images");
+            .GetBlobContainerClient(containerName);
     }
 
     private async Task<BlobUploadResult> UploadBannerAsync(
         IFormFile file)
     {
+        // Use the existing Azure container.
         var container = GetBannerContainer();
 
-        // The container must already exist in Azure.
         var extension = Path.GetExtension(file.FileName)
             .ToLowerInvariant();
+
+        var contentType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => throw new InvalidOperationException(
+                "Unsupported banner image type.")
+        };
 
         var blobName = $"events/{Guid.NewGuid():N}{extension}";
         var blob = container.GetBlobClient(blobName);
@@ -323,7 +427,7 @@ public class EventsController : Controller
             {
                 HttpHeaders = new BlobHttpHeaders
                 {
-                    ContentType = file.ContentType
+                    ContentType = contentType
                 }
             });
 
@@ -337,12 +441,14 @@ public class EventsController : Controller
         try
         {
             var container = GetBannerContainer();
-            await container.GetBlobClient(blobName)
+
+            await container
+                .GetBlobClient(blobName)
                 .DeleteIfExistsAsync();
         }
         catch (Exception ex)
         {
-            // Cleanup failure must not undo a saved event.
+            // A cleanup failure must not undo a saved event.
             _logger.LogWarning(
                 ex,
                 "Could not delete banner blob {BlobName}.",
