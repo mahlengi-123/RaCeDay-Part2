@@ -9,7 +9,7 @@ using RaceDayy.Models;
 
 namespace RaCeDay.Controllers;
 
-[Authorize].
+[Authorize]
 public class CategoriesController : Controller
 {
     private readonly ApplicationDbContext _db;
