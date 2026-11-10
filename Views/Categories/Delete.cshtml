@@ -1,0 +1,11 @@
+@model RaceDayy.Models.Category
+@{ ViewData["Title"] = "Delete category"; }
+<h1 class="h3">Delete category</h1>
+<div class="alert alert-warning">
+    Delete <strong>@Model.Name</strong> from @ViewBag.EventName?
+    Categories with participant enrolments cannot be deleted.
+</div>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" asp-route-eventId="@Model.EventId" class="btn btn-outline-secondary">Cancel</a>
+</form>

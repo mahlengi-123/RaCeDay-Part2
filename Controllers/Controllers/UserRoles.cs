@@ -8,7 +8,7 @@ using RaCeDay.Models.ViewModels;
 
 namespace RaceDayy.Controllers
 {
-    [Authorize(Roles = "Admin,Organiser")]
+    [Authorize(Roles = "Admin")]
     public class UserRoles : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -57,7 +57,7 @@ namespace RaceDayy.Controllers
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"User with Id = {userId} cannot be found!!";
-                return View("Not Found");
+                return View("NotFound");
             }
 
             ViewBag.UserName = user.UserName;

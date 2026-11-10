@@ -1,0 +1,13 @@
+@model RaceDayy.Models.Category
+<input type="hidden" asp-for="EventId" />
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Kind" class="form-label"></label>
+    <select asp-for="Kind" class="form-select"
+            asp-items="Html.GetEnumSelectList<RaceDayy.Models.CategoryKind>()"></select>
+    <span asp-validation-for="Kind" class="text-danger"></span>
+</div>

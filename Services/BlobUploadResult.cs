@@ -1,17 +1,13 @@
-﻿namespace RaCeDay_Part_2.Services
+namespace RaCeDay_Part_2.Services;
+
+public sealed class BlobUploadResult
 {
-    public class BlobUploadResult
+    public BlobUploadResult(string blobName, string imageUrl)
     {
-        private string blobName;
-        private string v;
-
-        public BlobUploadResult(string blobName, string v)
-        {
-            this.blobName = blobName;
-            this.v = v;
-        }
-
-        public string? ImageUrl { get; internal set; }
-        public string? BlobName { get; internal set; }
+        BlobName = blobName;
+        ImageUrl = imageUrl;
     }
+
+    public string BlobName { get; }
+    public string ImageUrl { get; }
 }

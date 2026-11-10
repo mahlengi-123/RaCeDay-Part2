@@ -1,4 +1,4 @@
-# RaCeDay – Part 2: Web Application and API
+﻿# RaCeDay â€“ Part 2: Web Application and API
 
 ## Portfolio of Evidence 
 
@@ -33,11 +33,11 @@ Part 2 develops the system using **ASP.NET Core**, **C#**, **Entity Framework Co
 
 The development database is **`RaCeDay_Complete_Dev`**. Entity Framework Core migrations create and update the tables, including:
 
-- `AspNetUsers` and other Identity tables – user accounts and roles
-- `Events` – event details
-- `Categories` – event categories
-- `Enrolments` – participant entries
-- `Results` – race results
+- `AspNetUsers` and other Identity tables â€“ user accounts and roles
+- `Events` â€“ event details
+- `Categories` â€“ event categories
+- `Enrolments` â€“ participant entries
+- `Results` â€“ race results
 
 ## Setup Instructions
 
@@ -49,8 +49,8 @@ The development database is **`RaCeDay_Complete_Dev`**. Entity Framework Core mi
    ```
 3. Open the RaCeDay solution (`.sln` or `.slnx`) in Visual Studio.
 4. Check the database connection string in `appsettings.json`. For LocalDB, use the correct server name, normally `(localdb)\\MSSQLLocalDB`, and the database name `RaCeDay_Complete_Dev`. **Do not commit passwords or private connection strings.**
-5. Select **Build → Rebuild Solution** to restore packages and build the project.
-6. Open **Tools → NuGet Package Manager → Package Manager Console** and run:
+5. Select **Build â†’ Rebuild Solution** to restore packages and build the project.
+6. Open **Tools â†’ NuGet Package Manager â†’ Package Manager Console** and run:
 
    ```powershell
    Update-Database -Context ApplicationDbContext
@@ -60,7 +60,7 @@ The development database is **`RaCeDay_Complete_Dev`**. Entity Framework Core mi
 8. Register a test user or sign in using an account already configured in your development database. If email confirmation is required, complete the configured confirmation process.
 
 ## Testing
-- In Visual Studio, open **Test → Test Explorer → Run All Tests**.
+- In Visual Studio, open **Test â†’ Test Explorer â†’ Run All Tests**.
 - Alternatively, run `dotnet test` from the solution folder if a test project is included.
 - Check registration, login, role restrictions, event management and enrolments.
 - If Swagger is configured, open its URL shown by the running application to test available API endpoints.
@@ -81,3 +81,77 @@ The demonstration shows login and roles, event and category management, particip
 
 ## Conclusion
 RaCeDay Part 2 builds on the Part 1 database design by developing an ASP.NET Core application with user authentication, role-based access and event management features. The project should be tested against the assessment rubric before final submission.
+
+## Part 3 repair and verification â€” 10 November 2026
+
+The MVC views now use the standard `Views/<Controller>/<Action>.cshtml` structure.
+The organiser login route opens the data-backed Dashboard. Participants have their own
+dashboard, enrolments, results and profile navigation. Identity controls authentication
+and roles; session records the signed-in user ID and role and is cleared on logout.
+Only administrators can manage user roles.
+
+The Events table and Edit form retain the simple Bootstrap layout shown in the assessment
+examples. Create/Edit support optional 2 MB JPG, PNG, GIF and WebP banners; Details displays
+the saved banner. Category Create/Edit/Delete pages are included. Events and categories
+with enrolments cannot be deleted.
+
+### Run and test
+
+From the repository folder:
+
+```powershell
+dotnet restore "RaCeDay Part2.sln"
+dotnet build "RaCeDay Part2.sln"
+dotnet test "RaCeDay Part2.sln" --no-build
+dotnet run --project "RaCeDay Part 2.csproj" --launch-profile https
+```
+
+Open https://localhost:7240. The 46 unit tests are in `Tests/` and reference the
+actual MVC application. The solution includes them in Debug and Release builds.
+A separate local HTTP verification exercised organiser password login, dashboard,
+event creation/editing, categories, participant enrolment, results and logout:
+48 checks passed, including a real Azure upload and a readable banner URL; temporary users, records and test uploads were removed.
+
+### Configuration
+
+Keep secrets in User Secrets or environment variables, never source control:
+
+- `ConnectionStrings:DefaultConnection`: SQL Server connection string.
+- `AzureBlob:ConnectionString`: banner storage; the existing
+  `AzureStorage:ConnectionString` key is also accepted.
+- `AzureBlob:ContainerName`: existing banner container, default `event-banners`.
+- `SeedAdmin:Email` and `SeedAdmin:Password`: optional initial admin configuration.
+
+Email confirmation remains enabled. Existing users' passwords and roles are not reset
+by these repairs.
+
+### Docker
+
+A multi-stage .NET 8 Dockerfile publishes the application and runs as the .NET image's
+non-root user on port 8080.
+
+```powershell
+docker build -t raceday .
+docker run --rm -p 8080:8080 --env-file runtime.env raceday
+```
+
+Create an untracked `runtime.env` locally containing the required configuration,
+using environment variable keys such as `ConnectionStrings__DefaultConnection`,
+`AzureBlob__ConnectionString`, and `AzureBlob__ContainerName`.
+Use a SQL Server instance reachable from the Linux container; Windows LocalDB and
+Windows integrated authentication cannot be used as the container's SQL connection.
+For a local classroom demonstration, `ASPNETCORE_ENVIRONMENT=Development` enables
+the existing development email sender. For production, configure a real email sender.
+
+Docker execution has not been verified: Docker Desktop's engine was not running
+on the laptop during the repair.
+
+### Remaining rubric evidence
+
+- Banner uploads currently use the MVC storage service directly. The rubric's highest
+  Azure band requires an MVC-to-API upload flow; that architecture is not implemented here.
+- CI configuration is present; a successful GitHub Actions run after pushing these changes
+  is still required as evidence.
+- Record and link the Part 3 demonstration video and add genuine screenshots.
+- Do not claim a particular commit count or Docker result without the corresponding evidence.
+

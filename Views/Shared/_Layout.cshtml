@@ -82,6 +82,13 @@
                             </li>
                         }
 
+                        @if (User.IsInRole("Admin") || User.IsInRole("Organiser") || User.IsInRole("Participant"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            </li>
+                        }
+
                         <!-- Events for all signed-in users -->
                         @if (User.Identity?.IsAuthenticated == true)
                         {
@@ -105,6 +112,10 @@
                                    asp-action="My">
                                     Enrolments
                                 </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Results" asp-action="My">My Results</a>
                             </li>
 
                             <!-- Signup: Browse events first -->

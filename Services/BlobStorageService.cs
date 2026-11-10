@@ -25,7 +25,8 @@ namespace RaCeDay_Part_2.Services
         public BlobStorageService(IConfiguration configuration)
         {
             var connectionString =
-                configuration["AzureBlob:ConnectionString"];
+                configuration["AzureBlob:ConnectionString"]
+                ?? configuration["AzureStorage:ConnectionString"];
 
             var containerName =
                 configuration["AzureBlob:ContainerName"]

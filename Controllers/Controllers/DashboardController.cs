@@ -7,7 +7,7 @@ using RaCeDay.Data;
 
 namespace RaceDayy.Controllers;
 
-[Authorize(Roles = "Admin,Organiser")]
+[Authorize(Roles = "Admin,Organiser,Participant")]
 public class DashboardController : Controller
 {
     private readonly ApplicationDbContext _db;

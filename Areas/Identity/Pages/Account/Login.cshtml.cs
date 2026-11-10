@@ -123,6 +123,12 @@ namespace RaCeDay.Areas.Identity.Pages.Account
                 _logger.LogInformation(
                     "User logged in successfully.");
 
+                HttpContext.Session.SetString("UserId", account.Id);
+                var roles = await _userManager.GetRolesAsync(account);
+                HttpContext.Session.SetString("Role", roles.Contains("Admin") ? "Admin"
+                    : roles.Contains("Organiser") ? "Organiser"
+                    : roles.Contains("Participant") ? "Participant" : "");
+
                 if (await _userManager.IsInRoleAsync(
                     account, "Admin"))
                 {

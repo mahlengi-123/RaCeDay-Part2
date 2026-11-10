@@ -6,14 +6,16 @@ namespace RaceDayy.Controllers
 {
     public class HomeController : Controller
     {
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
         public IActionResult AdminDashboard()
         {
             return View();
         }
 
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Organiser")]
         public IActionResult OrganiserDashboard()
         {
-            return View();
+            return RedirectToAction("Index", "Dashboard");
         }
         public IActionResult Index()
         {

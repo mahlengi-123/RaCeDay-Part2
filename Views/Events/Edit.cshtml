@@ -12,13 +12,27 @@
         <form asp-controller="Events"
               asp-action="Edit"
               asp-route-id="@Model.Id"
-              method="post">
+              method="post"
+              enctype="multipart/form-data">
 
             <div asp-validation-summary="ModelOnly"
                  class="text-danger mb-3">
             </div>
 
             <partial name="_EventForm" model="Model" />
+
+            @if (!string.IsNullOrWhiteSpace(Model.BannerImageURL))
+            {
+                <img src="@Model.BannerImageURL" alt="Current event banner"
+                     class="img-fluid rounded mb-3" style="max-height:160px;" />
+            }
+            <div class="mb-3">
+                <label for="bannerFile" class="form-label">Replace banner (optional)</label>
+                <input type="file" id="bannerFile" name="bannerFile" class="form-control"
+                       accept=".jpg,.jpeg,.png,.gif,.webp" />
+                <div class="form-text">JPG, PNG, GIF or WebP, up to 2 MB. Leave empty to keep the current banner.</div>
+                @Html.ValidationMessage("bannerFile", "", new { @class = "text-danger" })
+            </div>
 
             <button type="submit" class="btn btn-primary">
                 Save

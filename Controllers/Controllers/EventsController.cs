@@ -309,12 +309,11 @@ public class EventsController : Controller
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(
-        int id, Event ev)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var eventToDelete = await FindOwnedEventAsync(id);
+        var ev = await FindOwnedEventAsync(id);
 
-        if (eventToDelete == null)
+        if (ev == null)
             return NotFound();
 
         // Protect existing participant enrolments.

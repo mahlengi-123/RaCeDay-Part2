@@ -38,6 +38,17 @@ builder.Services
 // MVC and Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Event banner storage
+builder.Services.AddScoped<RaCeDay_Part_2.Services.IBlobStorageService,
+    RaCeDay_Part_2.Services.BlobStorageService>();
 
 // Profile image service
 builder.Services.AddScoped<
@@ -196,6 +207,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 // Authentication must run before Authorization
 app.UseAuthentication();
