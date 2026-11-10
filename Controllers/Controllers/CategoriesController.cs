@@ -24,7 +24,7 @@ public class CategoriesController : Controller
     }
     
     // Display categories for an event
-    [HttpGet]
+    [HttpGet].
     public async Task<IActionResult> Index(int eventId)
     {
         var ev = await _db.Events
@@ -35,7 +35,7 @@ public class CategoriesController : Controller
             return NotFound();
 
         ViewBag.Event = ev;
-        ViewBag.IsOwner =.
+        ViewBag.IsOwner =
             User.IsInRole("Admin") ||
             ev.OrganiserId == _users.GetUserId(User);
 
