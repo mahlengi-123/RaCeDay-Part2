@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RaceDay.Models;
 using RaCeDay.Data;
 using RaCeDay_Part_2.Services;
 using RaceDayy.Models;
@@ -309,11 +310,11 @@ public class EventsController : Controller
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(
-        int id)
+        int id, Event ev)
     {
-        var ev = await FindOwnedEventAsync(id);
+        var eventToDelete = await FindOwnedEventAsync(id);
 
-        if (ev == null)
+        if (eventToDelete == null)
             return NotFound();
 
         // Protect existing participant enrolments.

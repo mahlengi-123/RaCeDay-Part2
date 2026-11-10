@@ -1,3 +1,4 @@
+using RaceDay.Models;
 using RaCeDay.Data;
 
 namespace RaceDayy.Models;

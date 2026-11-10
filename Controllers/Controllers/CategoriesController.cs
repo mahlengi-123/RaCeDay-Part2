@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RaceDay.Models;
 using RaCeDay.Data;
 using RaCeDay.Models;
 using RaceDayy.Models;

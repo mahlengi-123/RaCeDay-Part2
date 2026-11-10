@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using RaceDay.Models;
 using RaceDayy.Models;
 
 namespace RaCeDay.Data

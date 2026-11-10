@@ -1,5 +1,5 @@
-@using RaceDayy.Models
-@model IEnumerable<Event>
+@model IEnumerable<RaceDay.Models.Event>
+
 @{
     ViewData["Title"] = "Events";
     var userId = ViewBag.UserId as string;
@@ -9,9 +9,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Events</h1>
+
     @if (User.IsInRole("Organiser"))
     {
-        <a asp-action="Create" class="btn btn-primary">Create event</a>
+        <a asp-action="Create" class="btn btn-primary">
+            Create event
+        </a>
     }
 </div>
 
@@ -27,26 +30,49 @@
                 <th></th>
             </tr>
         </thead>
+
         <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Date.ToString("yyyy-MM-dd HH:mm")</td>
-                <td>@item.Location</td>
-                <td>@item.DistanceKm.ToString("0.##") km</td>
-                <td>@item.EventType</td>
-                <td class="text-end">
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
-                    <a asp-controller="Categories" asp-action="Index" asp-route-eventId="@item.Id" class="btn btn-sm btn-outline-secondary">Categories</a>
-                    @if (User.IsInRole("Organiser") && item.OrganiserId == userId)
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
-                    }
-                </td>
-            </tr>
-        }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@item.Location</td>
+                    <td>@item.DistanceKm.ToString("0.##") km</td>
+                    <td>@item.EventType</td>
+
+                    <td class="text-end">
+                        <a asp-action="Details"
+                           asp-route-id="@item.Id"
+                           class="btn btn-sm btn-outline-secondary">
+                            Details
+                        </a>
+
+                        <a asp-controller="Categories"
+                           asp-action="Index"
+                           asp-route-eventId="@item.Id"
+                           class="btn btn-sm btn-outline-secondary">
+                            Categories
+                        </a>
+
+                        @if (User.IsInRole("Organiser") &&
+                                            item.OrganiserId == userId)
+                        {
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>

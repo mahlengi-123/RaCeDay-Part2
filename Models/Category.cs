@@ -1,3 +1,4 @@
+using RaceDay.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace RaceDayy.Models;

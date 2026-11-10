@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaCeDay.Data;
+using RaceDay.Models;
 
 
 namespace RaceDayy.Controllers;
@@ -29,13 +30,14 @@ public class ResultsController : Controller
         var ev = await FindOwnedEventAsync(eventId);
         if (ev == null) return NotFound();
 
-        if (ev.Date > DateTime.Now)   // remove this check if you want to capture results early while testing
+        if (ev.Date <=
+            DateTime.Now)   // remove this check if you want to capture results early while testing
         {
-            TempData["Error"] = "Results can only be captured after the event has taken place.";
-            return RedirectToAction("Details", "Events", new { id = eventId });
+            return View(await BuildViewModelAsync(ev));
         }
 
-        return View(await BuildViewModelAsync(ev));
+        TempData["Error"] = "Results can only be captured after the event has taken place.";
+        return RedirectToAction("Details", "Events", new { id = eventId });
     }
 
     [HttpPost, ValidateAntiForgeryToken]

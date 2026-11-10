@@ -1,9 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using RaCeDay.Data;
+using RaceDayy.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace RaceDayy.Models;
+namespace RaceDay.Models;
 
 public enum EventType
 {

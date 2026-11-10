@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using RaceDay.Models;
 using RaCeDay.Data;
 using RaceDayy.Models;
 using RaceDayy.Models.ViewModels;
