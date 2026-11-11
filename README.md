@@ -1,4 +1,4 @@
-﻿# RaCeDay â€“ Part 2: Web Application and API
+﻿# RaCeDay â€“ Part 2: Web Application and API and RaCeDay Part 3 
 
 ## Portfolio of Evidence 
 
@@ -313,15 +313,11 @@ Verified successful workflow:
 
 https://github.com/mahlengi-123/RaCeDay-Part2/actions/runs/42898700669
 
-Before submission:
-
-- Place Part 3 in a clearly named branch or subfolder.
-- Confirm at least 20 meaningful commits cover the assessed development.
-- Check that the final submitted revision passes CI.
-
 The previously checked repository contained 46 total commits. This alone does not establish that 20 commits specifically cover Part 3.
 
 ## Docker
+Docker Screenshot
+<img width="629" height="332" alt="image" src="https://github.com/user-attachments/assets/18e896f4-3d3e-4a78-b0c5-c8eda99ef622" />
 
 The repository includes a multi-stage .NET 8 Dockerfile.
 
@@ -352,26 +348,12 @@ The final UI review must check:
 - Readable event banners and status indicators.
 - Keyboard access and visible focus.
 
-## Demonstration Video link
+## YouTube Vidio
+https://youtu.be/xCXqM8GNs_0 
 
 
 ## Screenshot of Event Baner
 <img width="635" height="260" alt="BobBanner Image Azure Storage" src="https://github.com/user-attachments/assets/fab88013-b08f-4c31-98f2-d2749d97084d" />
 
 
-
-
-
-## Submission Checklist
-
-- [ ] Clearly named Part 3 branch or subfolder.
-- [ ] At least 20 meaningful commits confirmed.
-- [ ] Final GitHub Actions run passes.
-- [ ] Source code and Dockerfile included.
-- [ ] Docker build and run demonstrated.
-- [ ] MVC-to-API upload requirement completed.
-- [ ] Final UI consistency review completed.
-- [ ] Genuine application and CI screenshots included.
-- [ ] Unlisted YouTube link added to this README.
-- [ ] Correct GitHub submission link submitted on ARC.
 
